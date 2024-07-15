@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { withSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather, FontAwesome6, Ionicons } from "@expo/vector-icons";
 import { theme } from "../../constants/theme";
@@ -9,6 +9,8 @@ import {
   TextInput,
 } from "react-native-gesture-handler";
 import Categories from "../../components/categories";
+import { apiCall } from "../../api";
+import ImageGrid from "../../components/imageGrid";
 
 const HomeScreen = () => {
   const { top } = withSafeAreaInsets();
@@ -16,10 +18,32 @@ const HomeScreen = () => {
   const [search, setSearch] = useState("");
   const searchInputRef = useRef(null);
   const [activeCategory, setActiveCategory] = useState(null);
+  const [images, setImages] = useState([]);
+
+  useEffect(() => {
+    fetchImages();
+  }, []);
+
+  const fetchImages = async (params = { page: 1 }, append = false) => {
+    let res = await apiCall(params);
+    if (res.succes && res?.data?.hits) {
+      if (append) {
+        setImages([...images, ...res.data.hits]);
+      } else {
+        setImages([...res.data.hits]);
+      }
+    }
+  };
 
   const handleChangeCategory = (cat) => {
     setActiveCategory(cat);
   };
+
+  const handleSearch = (text) => {
+    console.log("searching for: ", text);
+  };
+
+  // const handleTextDebounce =
 
   return (
     <GestureHandlerRootView style={[styles.container, { paddingTop }]}>
@@ -70,6 +94,8 @@ const HomeScreen = () => {
             handleChangeCategory={handleChangeCategory}
           />
         </View>
+        {/* images mansory grid */}
+        <View>{images.length > 0 && <ImageGrid images={images} />}</View>
       </ScrollView>
     </GestureHandlerRootView>
   );

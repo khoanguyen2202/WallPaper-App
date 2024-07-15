@@ -3,6 +3,7 @@ import React from "react";
 import { data } from "../constants/data";
 import { hp, wp } from "../helpers/common";
 import { theme } from "../constants/theme";
+import Animated, { FadeInRight } from "react-native-reanimated";
 
 const Categories = ({ activeCategory, handleChangeCategory }) => {
   return (
@@ -13,19 +14,36 @@ const Categories = ({ activeCategory, handleChangeCategory }) => {
       data={data.categories}
       keyExtractor={(item) => item}
       renderItem={({ item, index }) => (
-        <CategoryItem title={item} index={index} />
+        <CategoryItem
+          title={item}
+          index={index}
+          isActive={activeCategory === item}
+          handleChangeCategory={handleChangeCategory}
+        />
       )}
     />
   );
 };
 
-const CategoryItem = ({ title, index }) => {
+const CategoryItem = ({ title, index, isActive, handleChangeCategory }) => {
+  const color = isActive ? theme.colors.white : theme.colors.neutral(0.8);
+  let backgroundColor = isActive
+    ? theme.colors.neutral(0.8)
+    : theme.colors.white;
   return (
-    <View>
-      <Pressable style={[styles.category]}>
-        <Text style={[styles.title]}>{title}</Text>
+    <Animated.View
+      entering={FadeInRight.delay(index * 200)
+        .duration(1000)
+        .springify()
+        .damping(14)}
+    >
+      <Pressable
+        onPress={() => handleChangeCategory(isActive ? null : title)}
+        style={[styles.category, { backgroundColor }]}
+      >
+        <Text style={[styles.title, { color }]}>{title}</Text>
       </Pressable>
-    </View>
+    </Animated.View>
   );
 };
 
